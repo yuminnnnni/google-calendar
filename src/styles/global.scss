@@ -1,0 +1,45 @@
+@use "./reset";
+@use "./variables";
+
+body {
+  font-family: variables.$font-family;
+  background-color: variables.$background-color;
+  color: variables.$text-color;
+}
+
+input,
+textarea,
+select {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border: 1px solid variables.$border-color;
+  border-radius: variables.$border-radius;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: variables.$base-padding;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("../assets/fonts/Pretendard-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("../assets/fonts/Pretendard-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: "Noto Sans KR";
+  src: url("../assets/fonts/NotoSansKR-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+}
