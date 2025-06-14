@@ -7,6 +7,7 @@ import { DatePickerModal } from "./DatePickerModal"
 import { useDispatch } from "react-redux"
 import { addEvent } from "../../store/eventSlice"
 import { getNearestTime, addMinutesToTime } from "../../utils/time"
+import { v4 as uuidv4 } from "uuid"
 
 interface EventModalProps {
   isOpen: boolean
@@ -39,10 +40,10 @@ export const CreateEventModal = ({ isOpen, onClose }: EventModalProps) => {
     end.setHours(endHour, endMinute, 0, 0)
 
     dispatch(addEvent({
-      id: Math.random().toString(36).substring(2, 9),
+      id: uuidv4(),
       title,
-      start,
-      end,
+      start: start.toISOString(),
+      end: end.toISOString(),
       color: "#4285F4",
     }))
 
