@@ -1,4 +1,3 @@
-import type React from "react"
 import { useState } from "react"
 import { X, Clock, Menu } from "lucide-react"
 import { format } from "date-fns"
@@ -7,6 +6,7 @@ import { TimePicker } from "../TimePicker/TimePicker"
 import { DatePickerModal } from "./DatePickerModal"
 import { useDispatch } from "react-redux"
 import { addEvent } from "../../store/eventSlice"
+import { getNearestTime, addMinutesToTime } from "../../utils/time"
 
 interface EventModalProps {
   isOpen: boolean
@@ -16,8 +16,8 @@ interface EventModalProps {
 export const CreateEventModal = ({ isOpen, onClose }: EventModalProps) => {
   const [title, setTitle] = useState("")
   const [selectedDate, setSelectedDate] = useState(new Date())
-  const [startTime, setStartTime] = useState("10:00")
-  const [endTime, setEndTime] = useState("11:00")
+  const [startTime, setStartTime] = useState(() => getNearestTime())
+  const [endTime, setEndTime] = useState(() => addMinutesToTime(getNearestTime(), 60))
   const [isRecurring, setIsRecurring] = useState(false)
   const [activeTab, setActiveTab] = useState("이벤트")
   const [showDatePicker, setShowDatePicker] = useState(false)
