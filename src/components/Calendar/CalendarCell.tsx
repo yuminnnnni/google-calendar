@@ -1,18 +1,19 @@
 import { useState } from "react"
-import type { CalendarEvent } from "../../types/calendar"
+import { useSelector } from "react-redux"
+import type { RootState } from "../../store"
 
 interface CalendarCellProps {
   date: Date
   hour: number | null
   view: "week" | "month"
-  events: CalendarEvent[]
 }
 
-export const CalendarCell = ({ date, hour, view, events }: CalendarCellProps) => {
+export const CalendarCell = ({ date, hour, view }: CalendarCellProps) => {
   const [isDragging, setIsDragging] = useState(false)
+  const events = useSelector((state: RootState) => state.events)
 
   const cellEvents = events.filter((event) => {
-    const eventStart = event.start
+    const eventStart = new Date(event.start)
 
     if (view === "week" && hour !== null) {
       return (

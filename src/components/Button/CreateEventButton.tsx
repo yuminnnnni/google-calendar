@@ -1,17 +1,16 @@
 import { useState } from "react"
 import { Plus } from "lucide-react"
-import type { CalendarEvent } from "../../types/calendar"
 import { CreateEventModal } from "../Modal/CreateEventModal"
 
 interface CreateEventButtonProps {
-  onAddEvent: (event: CalendarEvent) => void
   className?: string
 }
 
-export const CreateEventButton = ({ onAddEvent, className = "" }: CreateEventButtonProps) => {
+export const CreateEventButton = ({ className = "" }: CreateEventButtonProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
 
   const handleCloseModal = () => setIsModalOpen(false)
+
 
   return (
     <>
@@ -22,7 +21,7 @@ export const CreateEventButton = ({ onAddEvent, className = "" }: CreateEventBut
         <Plus className="w-6 h-6 text-blue-600 " />
         <span>만들기</span>
       </button>
-      <CreateEventModal isOpen={isModalOpen} onClose={handleCloseModal} onSave={onAddEvent} />
+      <CreateEventModal isOpen={isModalOpen} onClose={handleCloseModal} />
     </>
   )
 }

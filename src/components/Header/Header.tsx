@@ -1,46 +1,32 @@
 import { useState } from "react"
-import { Menu, Search, HelpCircle, Settings, ChevronLeft, ChevronRight, ChevronDown } from "lucide-react"
+import { Menu, Search, HelpCircle, Settings, ChevronLeft, ChevronRight, ChevronDown, } from "lucide-react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
+import { useSelector, useDispatch } from "react-redux"
+import type { RootState } from "../../store/index"
+import { moveToNextWeek, moveToPrevWeek, setCurrentDate, setView, } from "../../store/calendarSlice"
+import type { CalendarView } from "../../types/calendar"
 
-interface HeaderProps {
-  onChangeView: (view: "주" | "월") => void
-  onPrevious: () => void
-  onNext: () => void
-  onToday: () => void
-  currentDate: Date
-}
-
-export const Header = ({ onChangeView, onPrevious, onNext, onToday, currentDate }: HeaderProps) => {
+export const Header = () => {
   const VIEWS = ["주", "월"] as const
   type ViewType = (typeof VIEWS)[number]
+
   const [viewDropdownOpen, setViewDropdownOpen] = useState(false)
-  const [selectedView, setSelectedView] = useState<ViewType>("주")
+  const dispatch = useDispatch()
+  const view: CalendarView = useSelector((state: RootState) => state.calendar.view)
+  const currentDate = useSelector((state: RootState) => state.calendar.currentDate)
+  const formattedDate = format(new Date(currentDate), "yyyy년 M월", { locale: ko })
 
   const toggleDropdown = () => setViewDropdownOpen((prev) => !prev)
 
-  const selectView = (view: ViewType) => {
-    setSelectedView(view)
+  const selectView = (v: ViewType) => {
+    dispatch(setView(v === "주" ? "week" : "month"))
     setViewDropdownOpen(false)
-    onChangeView(view)
   }
 
-  const renderDropdownMenu = () => (
-    <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded shadow-lg z-[100]">
-      {VIEWS.map((view) => (
-        <button
-          key={view}
-          onClick={() => selectView(view)}
-          className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${selectedView === view ? "bg-gray-50 font-medium" : ""
-            }`}
-        >
-          {view}
-        </button>
-      ))}
-    </div>
-  )
-
-  const formattedDate = format(currentDate, "yyyy년 M월", { locale: ko })
+  const handleToday = () => {
+    dispatch(setCurrentDate(new Date()))
+  }
 
   return (
     <header className="w-full h-20 flex items-center bg-white justify-between px-8 py-4 border-b shadow-sm">
@@ -56,18 +42,20 @@ export const Header = ({ onChangeView, onPrevious, onNext, onToday, currentDate 
 
         <div className="flex items-center space-x-4 ml-12">
           <button
-            onClick={onToday}
+            onClick={handleToday}
             className="px-6 py-2 text-base font-medium rounded hover:bg-gray-100 border border-gray-200"
           >
             오늘
           </button>
-          <button onClick={onPrevious} className="p-2.5 rounded-full hover:bg-gray-100">
+          <button onClick={() => dispatch(moveToPrevWeek())} className="p-2.5 rounded-full hover:bg-gray-100">
             <ChevronLeft className="w-7 h-7" />
           </button>
-          <button onClick={onNext} className="p-2.5 rounded-full hover:bg-gray-100">
+          <button onClick={() => dispatch(moveToNextWeek())} className="p-2.5 rounded-full hover:bg-gray-100">
             <ChevronRight className="w-7 h-7" />
           </button>
-          <span className="text-lg font-medium ml-1">{formattedDate}</span>
+          <span className="text-lg font-medium ml-1">
+            {formattedDate}
+          </span>
         </div>
       </div>
 
@@ -83,10 +71,22 @@ export const Header = ({ onChangeView, onPrevious, onNext, onToday, currentDate 
             onClick={toggleDropdown}
             className="flex items-center justify-between px-5 py-2 text-base font-medium rounded border border-gray-300 hover:bg-gray-100 min-w-[90px]"
           >
-            <span>{selectedView}</span>
+            <span>{view === "week" ? "주" : "월"}</span>
             <ChevronDown className="ml-2 w-5 h-5" />
           </button>
-          {viewDropdownOpen && renderDropdownMenu()}
+          {viewDropdownOpen && (
+            <div className="absolute top-full left-0 mt-1 w-full bg-white border border-gray-200 rounded shadow-lg z-[100]">
+              {VIEWS.map((v) => (
+                <button
+                  key={v}
+                  onClick={() => selectView(v)}
+                  className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${v === (view === "week" ? "주" : "월") ? "bg-gray-50 font-medium" : ""}`}
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </header>

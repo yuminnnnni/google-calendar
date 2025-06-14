@@ -2,28 +2,36 @@ import { DayPicker } from "react-day-picker"
 import "react-day-picker/dist/style.css"
 import { ko } from "date-fns/locale"
 import { format } from "date-fns"
+import { useSelector, useDispatch } from "react-redux"
+import type { RootState } from "../../store"
+import { setCurrentDate } from "../../store/calendarSlice"
 import { CreateEventButton } from "../Button/CreateEventButton"
-import type { CalendarEvent } from "../../types/calendar"
 
-interface DatePickerProps {
-  selectedDate: Date
-  onSelectDate: (date: Date) => void
-  onAddEvent?: (event: CalendarEvent) => void
-}
-
-export const DatePicker = ({ selectedDate, onSelectDate, onAddEvent }: DatePickerProps) => {
+export const DatePicker = () => {
+  const dispatch = useDispatch()
+  const selectedDate = useSelector((state: RootState) => state.calendar.currentDate)
+  const selected = new Date(selectedDate)
 
   return (
     <aside className="w-80 border-r p-4 bg-white flex-shrink-0 overflow-y-auto h-full">
-      <div className="p-4">{onAddEvent && <CreateEventButton onAddEvent={onAddEvent} />}</div>
+      <div className="p-4">
+        <CreateEventButton />
+      </div>
       <div className="w-full box-border">
         <DayPicker
           mode="single"
-          selected={selectedDate}
-          defaultMonth={selectedDate}
+          selected={new Date(selectedDate)}
+          month={selected}
           showOutsideDays
           locale={ko}
-          onSelect={(day) => day && onSelectDate(day)}
+          onSelect={(day) => {
+            if (day) {
+              dispatch(setCurrentDate(day))
+            }
+          }}
+          onMonthChange={(newMonth) => {
+            dispatch(setCurrentDate(newMonth))
+          }}
           formatters={{
             formatCaption: (month, options) => format(month, "yyyy년 M월", { locale: options?.locale }),
           }}
