@@ -3,17 +3,17 @@ import { useState } from "react"
 import { X, Clock, Menu } from "lucide-react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
-import type { CalendarEvent } from "../../types/calendar"
 import { TimePicker } from "../TimePicker/TimePicker"
 import { DatePickerModal } from "./DatePickerModal"
+import { useDispatch } from "react-redux"
+import { addEvent } from "../../store/eventSlice"
 
 interface EventModalProps {
   isOpen: boolean
   onClose: () => void
-  onSave: (event: CalendarEvent) => void
 }
 
-export const CreateEventModal = ({ isOpen, onClose, onSave }: EventModalProps) => {
+export const CreateEventModal = ({ isOpen, onClose }: EventModalProps) => {
   const [title, setTitle] = useState("")
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [startTime, setStartTime] = useState("10:00")
@@ -23,10 +23,10 @@ export const CreateEventModal = ({ isOpen, onClose, onSave }: EventModalProps) =
   const [showDatePicker, setShowDatePicker] = useState(false)
 
   const tabs = ["이벤트", "할 일", "업무"]
+  const dispatch = useDispatch()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-
     if (!title.trim()) return
 
     const [startHour, startMinute] = startTime.split(":").map(Number)
@@ -38,13 +38,13 @@ export const CreateEventModal = ({ isOpen, onClose, onSave }: EventModalProps) =
     const end = new Date(selectedDate)
     end.setHours(endHour, endMinute, 0, 0)
 
-    onSave({
+    dispatch(addEvent({
       id: Math.random().toString(36).substring(2, 9),
       title,
       start,
       end,
       color: "#4285F4",
-    })
+    }))
 
     setTitle("")
     setSelectedDate(new Date())
@@ -65,7 +65,6 @@ export const CreateEventModal = ({ isOpen, onClose, onSave }: EventModalProps) =
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40">
         <div className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4">
           <form onSubmit={handleSubmit}>
-            {/* Header */}
             <div className="flex items-center justify-between p-6 border-b">
               <div className="flex items-center space-x-4 flex-1">
                 <Menu className="w-6 h-6 text-gray-600" />
@@ -83,7 +82,6 @@ export const CreateEventModal = ({ isOpen, onClose, onSave }: EventModalProps) =
               </button>
             </div>
 
-            {/* Tabs */}
             <div className="flex border-b">
               {tabs.map((tab) => (
                 <button
@@ -100,9 +98,7 @@ export const CreateEventModal = ({ isOpen, onClose, onSave }: EventModalProps) =
               ))}
             </div>
 
-            {/* Content */}
             <div className="p-6">
-              {/* Date and Time Section */}
               <div className="flex items-start space-x-4 mb-6">
                 <Clock className="w-6 h-6 text-gray-600 mt-2" />
                 <div className="flex-1">
@@ -128,7 +124,6 @@ export const CreateEventModal = ({ isOpen, onClose, onSave }: EventModalProps) =
                 </div>
               </div>
 
-              {/* Recurring Event Checkbox */}
               <div className="flex items-center space-x-3 mb-8">
                 <input
                   type="checkbox"
@@ -143,7 +138,6 @@ export const CreateEventModal = ({ isOpen, onClose, onSave }: EventModalProps) =
               </div>
             </div>
 
-            {/* Footer */}
             <div className="flex justify-end space-x-3 p-6 border-t">
               <button
                 type="button"
