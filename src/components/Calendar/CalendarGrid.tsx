@@ -1,13 +1,10 @@
+import { useSelector } from "react-redux"
 import { CalendarCell } from "./CalendarCell"
-import type { CalendarEvent } from "../../types/calendar"
+import type { RootState } from "../../store"
 
-interface CalendarGridProps {
-  view: "week" | "month"
-  currentDate: Date
-  events: CalendarEvent[]
-}
-
-export const CalendarGrid = ({ view, currentDate, events }: CalendarGridProps) => {
+export const CalendarGrid = () => {
+  const view = useSelector((state: RootState) => state.calendar.view)
+  const currentDate = new Date(useSelector((state: RootState) => state.calendar.currentDate))
 
   const getStartDate = () => {
     if (view === "week") {
@@ -33,12 +30,34 @@ export const CalendarGrid = ({ view, currentDate, events }: CalendarGridProps) =
   const hours = Array.from({ length: 24 }, (_, i) => i)
 
   const renderDayHeaders = () => {
-    return days.slice(0, 7).map((day, i) => (
-      <div key={i} className="text-center py-2 border-b border-gray-200">
-        <div className="text-sm text-gray-500">{day.toLocaleDateString("ko-KR", { weekday: "short" })}</div>
-        <div className="text-lg font-medium">{day.getDate()}</div>
-      </div>
-    ))
+    const today = new Date()
+
+    return days.slice(0, 7).map((day, i) => {
+      const isToday =
+        day.getFullYear() === today.getFullYear() &&
+        day.getMonth() === today.getMonth() &&
+        day.getDate() === today.getDate()
+
+      const isSelected =
+        day.getFullYear() === currentDate.getFullYear() &&
+        day.getMonth() === currentDate.getMonth() &&
+        day.getDate() === currentDate.getDate()
+
+      const bgClass = isToday
+        ? "bg-blue-100 text-blue-700"
+        : isSelected
+          ? "bg-gray-200 text-gray-800"
+          : ""
+
+      return (
+        <div key={i} className="text-center py-2 border-b border-gray-200">
+          <div className="text-sm text-gray-500">{day.toLocaleDateString("ko-KR", { weekday: "short" })}</div>
+          <div className={`text-lg font-medium inline-block w-8 h-8 leading-8 rounded-full ${bgClass}`}>
+            {day.getDate()}
+          </div>
+        </div>
+      )
+    })
   }
 
   return (
@@ -61,7 +80,7 @@ export const CalendarGrid = ({ view, currentDate, events }: CalendarGridProps) =
               {days.map((day, i) => (
                 <div key={i} className="border-l border-gray-200">
                   {hours.map((hour) => (
-                    <CalendarCell key={hour} date={day} hour={hour} view={view} events={events} />
+                    <CalendarCell key={hour} date={day} hour={hour} view={view} />
                   ))}
                 </div>
               ))}
@@ -80,7 +99,7 @@ export const CalendarGrid = ({ view, currentDate, events }: CalendarGridProps) =
           </div>
           <div className="grid grid-cols-7 grid-rows-6">
             {days.map((day, i) => (
-              <CalendarCell key={i} date={day} hour={null} view={view} events={events} />
+              <CalendarCell key={i} date={day} hour={null} view={view} />
             ))}
           </div>
         </>
