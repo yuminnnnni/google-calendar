@@ -14,7 +14,7 @@ export const Header = () => {
   const [viewDropdownOpen, setViewDropdownOpen] = useState(false)
   const dispatch = useDispatch()
   const view: CalendarView = useSelector((state: RootState) => state.calendar.view)
-  const currentDate = useSelector((state: RootState) => state.calendar.currentDate)
+  const currentDate = new Date(useSelector((state: RootState) => state.calendar.currentDate))
   const formattedDate = format(new Date(currentDate), "yyyy년 M월", { locale: ko })
 
   const toggleDropdown = () => setViewDropdownOpen((prev) => !prev)
@@ -25,7 +25,7 @@ export const Header = () => {
   }
 
   const handleToday = () => {
-    dispatch(setCurrentDate(new Date()))
+    dispatch(setCurrentDate(new Date().toISOString()))
   }
 
   const handlePrev = () => {

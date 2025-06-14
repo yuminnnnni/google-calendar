@@ -11,7 +11,7 @@ interface CalendarCellProps {
 export const CalendarCell = ({ date, hour, view }: CalendarCellProps) => {
   const [isDragging, setIsDragging] = useState(false)
   const events = useSelector((state: RootState) => state.events)
-  const currentDate = useSelector((state: RootState) => state.calendar.currentDate)
+  const currentDate = new Date(useSelector((state: RootState) => state.calendar.currentDate))
 
   const cellEvents = events.filter((event) => {
     const eventStart = new Date(event.start)

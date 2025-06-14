@@ -26,11 +26,11 @@ export const DatePicker = () => {
           locale={ko}
           onSelect={(day) => {
             if (day) {
-              dispatch(setCurrentDate(day))
+              dispatch(setCurrentDate(day.toISOString()))
             }
           }}
           onMonthChange={(newMonth) => {
-            dispatch(setCurrentDate(newMonth))
+            dispatch(setCurrentDate(newMonth.toISOString()))
           }}
           formatters={{
             formatCaption: (month, options) => format(month, "yyyy년 M월", { locale: options?.locale }),
