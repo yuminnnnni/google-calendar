@@ -60,6 +60,16 @@ export const CalendarGrid = () => {
     })
   }
 
+  const formatHour = (hour: number) => {
+    const date = new Date()
+    date.setHours(hour)
+    date.setMinutes(0)
+    return date.toLocaleTimeString("ko-KR", {
+      hour: "numeric",
+      hour12: true,
+    })
+  }
+
   return (
     <div className="relative w-full h-full overflow-auto">
       {view === "week" && (
@@ -72,7 +82,7 @@ export const CalendarGrid = () => {
             <div className="border-r border-gray-200">
               {hours.map((hour) => (
                 <div key={hour} className="h-16 border-b border-gray-200 text-right pr-2">
-                  <span className="text-xs text-gray-500">{hour}:00</span>
+                  <span className="text-xs text-gray-500">{formatHour(hour)}</span>
                 </div>
               ))}
             </div>

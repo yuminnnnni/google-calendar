@@ -73,29 +73,44 @@ export const CalendarCell = ({ date, hour, view }: CalendarCellProps) => {
           </span>
         </div>
       )}
-      {cellEvents.map((event) => (
-        <div
-          key={event.id}
-          className="absolute left-0 right-0 mx-1 rounded overflow-hidden bg-blue-100 border-l-4 border-blue-500 text-xs p-1"
-          style={{
-            top: view === "week" ? "0%" : "20px",
-            height: view === "week" ? "90%" : "20px",
-            borderLeftColor: event.color || "#4285F4",
-            zIndex: 10,
-          }}
-        >
-          <div className="font-medium truncate">{event.title}</div>
-          {view === "week" && (
-            <div className="truncate text-gray-600">
-              {event.start.toLocaleTimeString("ko-KR", {
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: false,
-              })}
-            </div>
-          )}
-        </div>
-      ))}
+      {cellEvents.map((event) => {
+        const start = new Date(event.start)
+        const end = new Date(event.end)
+        const startHour = start.getHours() + start.getMinutes() / 60
+        const endHour = end.getHours() + end.getMinutes() / 60
+        const durationHours = endHour - startHour
+        const blockHeight = view === "week" ? `${durationHours * 100}%` : "20px"
+
+        return (
+          <div
+            key={event.id}
+            className="absolute left-0 right-0 mx-1 rounded overflow-hidden bg-blue-100 border-l-4 border-blue-500 text-xs p-1"
+            style={{
+              top: view === "week" ? "0%" : "20px",
+              height: blockHeight,
+              borderLeftColor: event.color || "#4285F4",
+              zIndex: 10,
+            }}
+          >
+            <div className="font-medium truncate">{event.title}</div>
+            {view === "week" && (
+              <div className="truncate text-gray-600">
+                {start.toLocaleTimeString("ko-KR", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
+                {" ~ "}
+                {end.toLocaleTimeString("ko-KR", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
+              </div>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }
