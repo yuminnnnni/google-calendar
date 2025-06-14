@@ -11,6 +11,7 @@ interface CalendarCellProps {
 export const CalendarCell = ({ date, hour, view }: CalendarCellProps) => {
   const [isDragging, setIsDragging] = useState(false)
   const events = useSelector((state: RootState) => state.events)
+  const currentDate = useSelector((state: RootState) => state.calendar.currentDate)
 
   const cellEvents = events.filter((event) => {
     const eventStart = new Date(event.start)
@@ -31,6 +32,9 @@ export const CalendarCell = ({ date, hour, view }: CalendarCellProps) => {
     }
     return false
   })
+
+  const isToday = date.toDateString() === new Date().toDateString()
+  const isSelected = date.toDateString() === new Date(currentDate).toDateString()
 
   const handleMouseDown = () => {
     setIsDragging(true)
@@ -55,8 +59,20 @@ export const CalendarCell = ({ date, hour, view }: CalendarCellProps) => {
 
   return (
     <div className={cellClass} onMouseDown={handleMouseDown} onMouseUp={handleMouseUp} onMouseEnter={handleMouseEnter}>
-      {view === "month" && <div className="text-xs text-gray-500">{date.getDate()}</div>}
-
+      {view === "month" && (
+        <div className="text-xs text-gray-500">
+          <span
+            className={`inline-block w-6 h-6 leading-6 text-center rounded-full ${isToday
+              ? "bg-blue-100 text-blue-700"
+              : isSelected
+                ? "bg-gray-200 text-gray-800"
+                : ""
+              }`}
+          >
+            {date.getDate()}
+          </span>
+        </div>
+      )}
       {cellEvents.map((event) => (
         <div
           key={event.id}
