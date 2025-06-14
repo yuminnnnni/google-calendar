@@ -4,7 +4,7 @@ import { format } from "date-fns"
 import { ko } from "date-fns/locale"
 import { useSelector, useDispatch } from "react-redux"
 import type { RootState } from "../../store/index"
-import { moveToNextWeek, moveToPrevWeek, setCurrentDate, setView, } from "../../store/calendarSlice"
+import { moveToNextWeek, moveToPrevWeek, moveToNextMonth, moveToPrevMonth, setCurrentDate, setView, } from "../../store/calendarSlice"
 import type { CalendarView } from "../../types/calendar"
 
 export const Header = () => {
@@ -28,6 +28,22 @@ export const Header = () => {
     dispatch(setCurrentDate(new Date()))
   }
 
+  const handlePrev = () => {
+    if (view === "month") {
+      dispatch(moveToPrevMonth())
+    } else {
+      dispatch(moveToPrevWeek())
+    }
+  }
+
+  const handleNext = () => {
+    if (view === "month") {
+      dispatch(moveToNextMonth())
+    } else {
+      dispatch(moveToNextWeek())
+    }
+  }
+
   return (
     <header className="w-full h-20 flex items-center bg-white justify-between px-8 py-4 border-b shadow-sm">
       <div className="flex items-center space-x-8">
@@ -47,10 +63,10 @@ export const Header = () => {
           >
             오늘
           </button>
-          <button onClick={() => dispatch(moveToPrevWeek())} className="p-2.5 rounded-full hover:bg-gray-100">
+          <button onClick={handlePrev} className="p-2.5 rounded-full hover:bg-gray-100">
             <ChevronLeft className="w-7 h-7" />
           </button>
-          <button onClick={() => dispatch(moveToNextWeek())} className="p-2.5 rounded-full hover:bg-gray-100">
+          <button onClick={handleNext} className="p-2.5 rounded-full hover:bg-gray-100">
             <ChevronRight className="w-7 h-7" />
           </button>
           <span className="text-lg font-medium ml-1">

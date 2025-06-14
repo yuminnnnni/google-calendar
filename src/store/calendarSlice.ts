@@ -23,6 +23,16 @@ const calendarSlice = createSlice({
       prev.setDate(prev.getDate() - 7)
       state.currentDate = prev
     },
+    moveToNextMonth(state) {
+      const next = new Date(state.currentDate)
+      next.setMonth(next.getMonth() + 1)
+      state.currentDate = next
+    },
+    moveToPrevMonth(state) {
+      const prev = new Date(state.currentDate)
+      prev.setMonth(prev.getMonth() - 1)
+      state.currentDate = prev
+    },
     setView(state, action) {
       state.view = action.payload
     },
@@ -33,6 +43,8 @@ export const {
   setCurrentDate,
   moveToNextWeek,
   moveToPrevWeek,
+  moveToNextMonth,
+  moveToPrevMonth,
   setView,
 } = calendarSlice.actions
 
