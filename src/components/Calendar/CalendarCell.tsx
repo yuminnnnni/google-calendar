@@ -7,14 +7,14 @@ interface CalendarCellProps {
   date: Date
   hour: number | null
   view: CalendarView
+  events: CalendarEvent[]
 }
 
-export const CalendarCell = ({ date, hour, view }: CalendarCellProps) => {
-  const eventList = useSelector((state: RootState) => state.events.eventList)
+export const CalendarCell = ({ date, hour, view, events }: CalendarCellProps) => {
   const currentDate = new Date(useSelector((state: RootState) => state.calendar.currentDate))
   const dispatch = useDispatch()
 
-  const cellEvents = eventList.filter((event: CalendarEvent) => {
+  const cellEvents = events.filter((event: CalendarEvent) => {
     const eventStart = new Date(event.start)
 
     if (view === "week" && hour !== null) {
@@ -114,7 +114,7 @@ export const CalendarCell = ({ date, hour, view }: CalendarCellProps) => {
           top: `${index * (HEIGHT + GAP) + 20}px`,
           height: `${HEIGHT}px`,
           marginTop: "10px",
-          borderLeftColor: event.color || "#4285F4",
+          borderLeftColor: "#4285F4",
           zIndex: 10,
         }}
         title={`${event.title}`}

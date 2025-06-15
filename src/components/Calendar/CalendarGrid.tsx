@@ -1,8 +1,13 @@
 import { useSelector } from "react-redux"
 import { CalendarCell } from "./CalendarCell"
 import type { RootState } from "../../store"
+import type { CalendarEvent } from "../../types/calendar"
 
-export const CalendarGrid = () => {
+interface CalendarGridProps {
+  events: CalendarEvent[]
+}
+
+export const CalendarGrid = ({ events }: CalendarGridProps) => {
   const view = useSelector((state: RootState) => state.calendar.view)
   const currentDate = new Date(useSelector((state: RootState) => state.calendar.currentDate))
 
@@ -89,11 +94,30 @@ export const CalendarGrid = () => {
             <div className="grid grid-cols-7">
               {days.map((day, i) => (
                 <div key={i} className="border-l border-gray-200">
-                  {hours.map((hour) => (
-                    <CalendarCell key={hour} date={day} hour={hour} view={view} />
-                  ))}
+                  {hours.map((hour) => {
+                    const cellEvents = events.filter((event) => {
+                      const eventDate = new Date(event.start)
+                      return (
+                        eventDate.getFullYear() === day.getFullYear() &&
+                        eventDate.getMonth() === day.getMonth() &&
+                        eventDate.getDate() === day.getDate() &&
+                        eventDate.getHours() === hour
+                      )
+                    })
+
+                    return (
+                      <CalendarCell
+                        key={hour}
+                        date={day}
+                        hour={hour}
+                        view={view}
+                        events={cellEvents}
+                      />
+                    )
+                  })}
                 </div>
               ))}
+
             </div>
           </div>
         </>
@@ -108,9 +132,25 @@ export const CalendarGrid = () => {
             ))}
           </div>
           <div className="grid grid-cols-7 grid-rows-6">
-            {days.map((day, i) => (
-              <CalendarCell key={i} date={day} hour={null} view={view} />
-            ))}
+            {days.map((day, i) => {
+              const cellEvents = events.filter((event) => {
+                const eventDate = new Date(event.start)
+                return (
+                  eventDate.getFullYear() === day.getFullYear() &&
+                  eventDate.getMonth() === day.getMonth() &&
+                  eventDate.getDate() === day.getDate()
+                )
+              })
+              return (
+                <CalendarCell
+                  key={i}
+                  date={day}
+                  hour={null}
+                  view={view}
+                  events={cellEvents}
+                />
+              )
+            })}
           </div>
         </>
       )}
