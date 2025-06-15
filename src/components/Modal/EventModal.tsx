@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react"
-import { X, Clock, Menu } from "lucide-react"
+import { X, Clock, Menu, Trash2 } from "lucide-react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
 import { TimePicker } from "../TimePicker/TimePicker"
 import { DatePickerModal } from "./DatePickerModal"
 import { useDispatch } from "react-redux"
-import { addEvent, updateEvent } from "../../store/eventSlice"
+import { addEvent, updateEvent, deleteEvent } from "../../store/eventSlice"
 import { getNearestTime, addMinutesToTime } from "../../utils/time"
 import { v4 as uuidv4 } from "uuid"
 import type { CalendarEvent } from "../../types/calendar"
@@ -69,6 +69,13 @@ export const EventModal = ({ isOpen, onClose, existingEvent }: EventModalProps) 
     onClose()
   }
 
+  const handleDelete = () => {
+    if (existingEvent) {
+      dispatch(deleteEvent(existingEvent.id))
+      onClose()
+    }
+  }
+
   const formatSelectedDate = () => {
     return format(selectedDate, "M월 d일 (EEEE)", { locale: ko })
   }
@@ -92,9 +99,16 @@ export const EventModal = ({ isOpen, onClose, existingEvent }: EventModalProps) 
                   autoFocus
                 />
               </div>
-              <button type="button" onClick={onClose} className="p-2 hover:bg-gray-100 rounded">
-                <X className="w-6 h-6 text-gray-600" />
-              </button>
+              <div className="flex items-center space-x-2">
+                {existingEvent && (
+                  <button type="button" onClick={handleDelete} className="p-2 hover:bg-gray-100 rounded">
+                    <Trash2 className="w-5 h-5 text-gray-600" />
+                  </button>
+                )}
+                <button type="button" onClick={onClose} className="p-2 hover:bg-gray-100 rounded">
+                  <X className="w-6 h-6 text-gray-600" />
+                </button>
+              </div>
             </div>
 
             <div className="px-6 pt-4 text-base font-medium text-blue-600">이벤트</div>
