@@ -9,10 +9,10 @@ interface CalendarCellProps {
 }
 
 export const CalendarCell = ({ date, hour, view }: CalendarCellProps) => {
-  const events = useSelector((state: RootState) => state.events)
+  const eventList = useSelector((state: RootState) => state.events.eventList)
   const currentDate = new Date(useSelector((state: RootState) => state.calendar.currentDate))
 
-  const cellEvents = events.filter((event) => {
+  const cellEvents = eventList.filter((event: CalendarEvent) => {
     const eventStart = new Date(event.start)
 
     if (view === "week" && hour !== null) {
@@ -134,7 +134,7 @@ export const CalendarCell = ({ date, hour, view }: CalendarCellProps) => {
       )}
       {view === "week"
         ? cellEvents.map(renderWeekEvent)
-        : cellEvents.map((event, index) => renderMonthEvent(event, index))
+        : cellEvents.map((event: CalendarEvent, index: number) => renderMonthEvent(event, index))
       }
     </div>
   )

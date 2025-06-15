@@ -3,8 +3,8 @@ export type CalendarView = "week" | "month"
 export interface CalendarEvent {
   id: string
   title: string
-  start: Date
-  end: Date
+  start: string
+  end: string
   allDay?: boolean
   color?: string
 }
