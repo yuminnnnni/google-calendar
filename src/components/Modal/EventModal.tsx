@@ -1,29 +1,69 @@
-import type React from "react"
-import { useState } from "react"
-import { X, Clock, Menu } from "lucide-react"
+import { useState, useEffect } from "react"
+import { X, Clock, Menu, Trash2 } from "lucide-react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
 import { TimePicker } from "../TimePicker/TimePicker"
 import { DatePickerModal } from "./DatePickerModal"
 import { useDispatch } from "react-redux"
-import { addEvent } from "../../store/eventSlice"
+import { addEvent, updateEvent, deleteEvent } from "../../store/eventSlice"
+import { getNearestTime, addMinutesToTime } from "../../utils/time"
+import { v4 as uuidv4 } from "uuid"
+import type { CalendarEvent } from "../../types/calendar"
+import { RepeatDropdown } from "../Dropdown/RepeatDropdown"
+import { RepeatType } from "../../types/repeat"
+import { useSelector } from "react-redux"
+import type { RootState } from "../../store"
 
 interface EventModalProps {
   isOpen: boolean
   onClose: () => void
+  existingEvent?: CalendarEvent
 }
 
-export const CreateEventModal = ({ isOpen, onClose }: EventModalProps) => {
+export const EventModal = ({ isOpen, onClose, existingEvent }: EventModalProps) => {
+  const dispatch = useDispatch()
+  const selectedSlot = useSelector((state: RootState) => state.events.selectedSlot)
+  const selectedEvent = useSelector((state: RootState) => state.events.selectedEvent)
+
   const [title, setTitle] = useState("")
   const [selectedDate, setSelectedDate] = useState(new Date())
-  const [startTime, setStartTime] = useState("10:00")
-  const [endTime, setEndTime] = useState("11:00")
-  const [isRecurring, setIsRecurring] = useState(false)
-  const [activeTab, setActiveTab] = useState("이벤트")
+  const [startTime, setStartTime] = useState("")
+  const [endTime, setEndTime] = useState("")
   const [showDatePicker, setShowDatePicker] = useState(false)
+  const [repeatType, setRepeatType] = useState<RepeatType>(selectedEvent?.repeat || RepeatType.NONE)
 
-  const tabs = ["이벤트", "할 일", "업무"]
-  const dispatch = useDispatch()
+  useEffect(() => {
+    if (!isOpen) return
+
+    if (existingEvent) {
+      const start = new Date(existingEvent.start)
+      const end = new Date(existingEvent.end)
+
+      setTitle(existingEvent.title)
+      setSelectedDate(start)
+      setStartTime(`${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`)
+      setEndTime(`${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`)
+    } else if (selectedSlot) {
+      const slotDate = new Date(selectedSlot.date)
+      setTitle("")
+      setSelectedDate(slotDate)
+
+      const slotHour = slotDate.getHours()
+      const start = `${String(slotHour).padStart(2, "0")}:00`
+      const end = addMinutesToTime(start, 60)
+
+      setStartTime(start)
+      setEndTime(end)
+      setRepeatType(RepeatType.NONE)
+    } else {
+      const nearest = getNearestTime()
+      setTitle("")
+      setSelectedDate(new Date())
+      setStartTime(nearest)
+      setEndTime(addMinutesToTime(nearest, 60))
+      setRepeatType(RepeatType.NONE)
+    }
+  }, [isOpen, existingEvent, selectedSlot])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -38,20 +78,33 @@ export const CreateEventModal = ({ isOpen, onClose }: EventModalProps) => {
     const end = new Date(selectedDate)
     end.setHours(endHour, endMinute, 0, 0)
 
-    dispatch(addEvent({
-      id: Math.random().toString(36).substring(2, 9),
-      title,
-      start,
-      end,
-      color: "#4285F4",
-    }))
+    if (existingEvent) {
+      dispatch(updateEvent({
+        ...existingEvent,
+        title,
+        start: start.toISOString(),
+        end: end.toISOString(),
+        repeat: repeatType,
+      }))
+    } else {
+      dispatch(addEvent({
+        id: uuidv4(),
+        title,
+        start: start.toISOString(),
+        end: end.toISOString(),
+        color: "#4285F4",
+        repeat: repeatType,
+      }))
+    }
 
-    setTitle("")
-    setSelectedDate(new Date())
-    setStartTime("10:00")
-    setEndTime("11:00")
-    setIsRecurring(false)
     onClose()
+  }
+
+  const handleDelete = () => {
+    if (existingEvent) {
+      dispatch(deleteEvent(existingEvent.id))
+      onClose()
+    }
   }
 
   const formatSelectedDate = () => {
@@ -77,26 +130,19 @@ export const CreateEventModal = ({ isOpen, onClose }: EventModalProps) => {
                   autoFocus
                 />
               </div>
-              <button type="button" onClick={onClose} className="p-2 hover:bg-gray-100 rounded">
-                <X className="w-6 h-6 text-gray-600" />
-              </button>
+              <div className="flex items-center space-x-2">
+                {existingEvent && (
+                  <button type="button" onClick={handleDelete} className="p-2 hover:bg-gray-100 rounded">
+                    <Trash2 className="w-5 h-5 text-gray-600" />
+                  </button>
+                )}
+                <button type="button" onClick={onClose} className="p-2 hover:bg-gray-100 rounded">
+                  <X className="w-6 h-6 text-gray-600" />
+                </button>
+              </div>
             </div>
 
-            <div className="flex border-b">
-              {tabs.map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-6 py-3 text-base font-medium border-b-2 ${activeTab === tab
-                    ? "text-blue-600 border-blue-600 bg-blue-50"
-                    : "text-gray-600 border-transparent hover:text-gray-800"
-                    }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
+            <div className="px-6 pt-4 text-base font-medium text-blue-600">이벤트</div>
 
             <div className="p-6">
               <div className="flex items-start space-x-4 mb-6">
@@ -113,28 +159,20 @@ export const CreateEventModal = ({ isOpen, onClose }: EventModalProps) => {
                   </div>
                   <div className="flex items-center space-x-3 mb-2">
                     <div className="flex-1">
-                      <TimePicker value={startTime} onChange={setStartTime} placeholder="시작 시간" />
+                      <TimePicker value={startTime} onChange={setStartTime} placeholder="시작 시간" baseTime={selectedDate} />
                     </div>
                     <span className="text-gray-500 text-lg">-</span>
                     <div className="flex-1">
-                      <TimePicker value={endTime} onChange={setEndTime} placeholder="종료 시간" />
+                      <TimePicker value={endTime} onChange={setEndTime} placeholder="종료 시간" baseTime={selectedDate} />
                     </div>
                   </div>
                   <div className="text-sm text-gray-500 mt-2">시간대 · 반복 안함</div>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-3 mb-8">
-                <input
-                  type="checkbox"
-                  id="recurring"
-                  checked={isRecurring}
-                  onChange={(e) => setIsRecurring(e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300"
-                />
-                <label htmlFor="recurring" className="text-base text-gray-700">
-                  반복 업무
-                </label>
+              <div className="mb-4">
+                <span className="block text-sm text-gray-600 mb-1">반복 설정</span>
+                <RepeatDropdown value={repeatType} onChange={setRepeatType} />
               </div>
             </div>
 
@@ -144,7 +182,7 @@ export const CreateEventModal = ({ isOpen, onClose }: EventModalProps) => {
                 onClick={onClose}
                 className="px-6 py-3 text-base text-gray-600 hover:bg-gray-100 rounded-md"
               >
-                옵션 더보기
+                취소
               </button>
               <button
                 type="submit"

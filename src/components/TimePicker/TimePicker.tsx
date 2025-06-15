@@ -1,13 +1,15 @@
 import { useState } from "react"
 import { ChevronDown } from "lucide-react"
+import { getNearestTime } from "../../utils/time"
 
 interface TimePickerProps {
   value: string
   onChange: (time: string) => void
   placeholder?: string
+  baseTime?: Date
 }
 
-export const TimePicker = ({ value, onChange, placeholder = "시간 선택" }: TimePickerProps) => {
+export const TimePicker = ({ value, onChange, placeholder = "시간 선택", baseTime }: TimePickerProps) => {
   const [isOpen, setIsOpen] = useState(false)
 
   const generateTimeOptions = () => {
@@ -19,7 +21,10 @@ export const TimePicker = ({ value, onChange, placeholder = "시간 선택" }: T
         times.push({ value: timeString, display: displayTime })
       }
     }
-    return times
+
+    const nearest = getNearestTime(baseTime || new Date())
+    const index = times.findIndex((t) => t.value === nearest)
+    return index !== -1 ? [...times.slice(index), ...times.slice(0, index)] : times
   }
 
   const timeOptions = generateTimeOptions()
