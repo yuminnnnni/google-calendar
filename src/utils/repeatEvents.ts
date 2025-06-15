@@ -14,7 +14,7 @@ export const repeatEvents = (events: CalendarEvent[], viewStart: Date, viewEnd: 
     const start = new Date(event.start)
     const end = new Date(event.end)
     const duration = end.getTime() - start.getTime()
-    const currentDatePointer = new Date(viewStart)
+    const currentDatePointer = new Date(event.start)
 
     while (currentDatePointer <= viewEnd) {
       let shouldAdd = false

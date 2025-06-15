@@ -78,7 +78,13 @@ export const EventModal = ({ isOpen, onClose, existingEvent }: EventModalProps) 
     end.setHours(endHour, endMinute, 0, 0)
 
     if (existingEvent) {
-      dispatch(updateEvent({ ...existingEvent, title, start: start.toISOString(), end: end.toISOString() }))
+      dispatch(updateEvent({
+        ...existingEvent,
+        title,
+        start: start.toISOString(),
+        end: end.toISOString(),
+        repeat: repeatType,
+      }))
     } else {
       dispatch(addEvent({
         id: uuidv4(),
