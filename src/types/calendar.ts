@@ -1,3 +1,5 @@
+import type { RepeatType } from "./repeat"
+
 export type CalendarView = "week" | "month"
 
 export interface CalendarEvent {
@@ -5,6 +7,6 @@ export interface CalendarEvent {
   title: string
   start: string
   end: string
-  allDay?: boolean
   color?: string
+  repeat?: RepeatType
 }
