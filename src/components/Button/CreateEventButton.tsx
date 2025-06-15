@@ -1,6 +1,6 @@
 import { useState } from "react"
 import { Plus } from "lucide-react"
-import { CreateEventModal } from "../Modal/CreateEventModal"
+import { EventModal } from "../Modal/EventModal"
 
 interface CreateEventButtonProps {
   className?: string
@@ -21,7 +21,7 @@ export const CreateEventButton = ({ className = "" }: CreateEventButtonProps) =>
         <Plus className="w-6 h-6 text-blue-600 " />
         <span>만들기</span>
       </button>
-      <CreateEventModal isOpen={isModalOpen} onClose={handleCloseModal} />
+      <EventModal isOpen={isModalOpen} onClose={handleCloseModal} />
     </>
   )
 }

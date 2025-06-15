@@ -1,30 +1,45 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { X, Clock, Menu } from "lucide-react"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
 import { TimePicker } from "../TimePicker/TimePicker"
 import { DatePickerModal } from "./DatePickerModal"
 import { useDispatch } from "react-redux"
-import { addEvent } from "../../store/eventSlice"
+import { addEvent, updateEvent } from "../../store/eventSlice"
 import { getNearestTime, addMinutesToTime } from "../../utils/time"
 import { v4 as uuidv4 } from "uuid"
+import type { CalendarEvent } from "../../types/calendar"
 
 interface EventModalProps {
   isOpen: boolean
   onClose: () => void
+  existingEvent?: CalendarEvent
 }
 
-export const CreateEventModal = ({ isOpen, onClose }: EventModalProps) => {
+export const EventModal = ({ isOpen, onClose, existingEvent }: EventModalProps) => {
+  const dispatch = useDispatch()
+
   const [title, setTitle] = useState("")
   const [selectedDate, setSelectedDate] = useState(new Date())
-  const [startTime, setStartTime] = useState(() => getNearestTime())
-  const [endTime, setEndTime] = useState(() => addMinutesToTime(getNearestTime(), 60))
+  const [startTime, setStartTime] = useState("")
+  const [endTime, setEndTime] = useState("")
   const [isRecurring, setIsRecurring] = useState(false)
-  const [activeTab, setActiveTab] = useState("이벤트")
   const [showDatePicker, setShowDatePicker] = useState(false)
 
-  const tabs = ["이벤트", "할 일", "업무"]
-  const dispatch = useDispatch()
+  useEffect(() => {
+    if (existingEvent) {
+      setTitle(existingEvent.title)
+      const start = new Date(existingEvent.start)
+      const end = new Date(existingEvent.end)
+      setSelectedDate(start)
+      setStartTime(`${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`)
+      setEndTime(`${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`)
+    } else {
+      const nearest = getNearestTime()
+      setStartTime(nearest)
+      setEndTime(addMinutesToTime(nearest, 60))
+    }
+  }, [existingEvent])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -39,19 +54,18 @@ export const CreateEventModal = ({ isOpen, onClose }: EventModalProps) => {
     const end = new Date(selectedDate)
     end.setHours(endHour, endMinute, 0, 0)
 
-    dispatch(addEvent({
-      id: uuidv4(),
-      title,
-      start: start.toISOString(),
-      end: end.toISOString(),
-      color: "#4285F4",
-    }))
+    if (existingEvent) {
+      dispatch(updateEvent({ ...existingEvent, title, start: start.toISOString(), end: end.toISOString() }))
+    } else {
+      dispatch(addEvent({
+        id: uuidv4(),
+        title,
+        start: start.toISOString(),
+        end: end.toISOString(),
+        color: "#4285F4",
+      }))
+    }
 
-    setTitle("")
-    setSelectedDate(new Date())
-    setStartTime("10:00")
-    setEndTime("11:00")
-    setIsRecurring(false)
     onClose()
   }
 
@@ -83,21 +97,7 @@ export const CreateEventModal = ({ isOpen, onClose }: EventModalProps) => {
               </button>
             </div>
 
-            <div className="flex border-b">
-              {tabs.map((tab) => (
-                <button
-                  key={tab}
-                  type="button"
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-6 py-3 text-base font-medium border-b-2 ${activeTab === tab
-                    ? "text-blue-600 border-blue-600 bg-blue-50"
-                    : "text-gray-600 border-transparent hover:text-gray-800"
-                    }`}
-                >
-                  {tab}
-                </button>
-              ))}
-            </div>
+            <div className="px-6 pt-4 text-base font-medium text-blue-600">이벤트</div>
 
             <div className="p-6">
               <div className="flex items-start space-x-4 mb-6">
@@ -145,7 +145,7 @@ export const CreateEventModal = ({ isOpen, onClose }: EventModalProps) => {
                 onClick={onClose}
                 className="px-6 py-3 text-base text-gray-600 hover:bg-gray-100 rounded-md"
               >
-                옵션 더보기
+                취소
               </button>
               <button
                 type="submit"

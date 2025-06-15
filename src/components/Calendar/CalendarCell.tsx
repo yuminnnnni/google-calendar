@@ -1,6 +1,7 @@
-import { useSelector } from "react-redux"
+import { useSelector, useDispatch } from "react-redux"
 import type { RootState } from "../../store"
 import type { CalendarEvent, CalendarView } from "../../types/calendar"
+import { selectEvent } from "../../store/eventSlice"
 
 interface CalendarCellProps {
   date: Date
@@ -11,6 +12,7 @@ interface CalendarCellProps {
 export const CalendarCell = ({ date, hour, view }: CalendarCellProps) => {
   const eventList = useSelector((state: RootState) => state.events.eventList)
   const currentDate = new Date(useSelector((state: RootState) => state.calendar.currentDate))
+  const dispatch = useDispatch()
 
   const cellEvents = eventList.filter((event: CalendarEvent) => {
     const eventStart = new Date(event.start)
@@ -72,6 +74,7 @@ export const CalendarCell = ({ date, hour, view }: CalendarCellProps) => {
       <div
         key={event.id}
         className="absolute left-0.5 right-0.5 rounded text-xs overflow-hidden bg-blue-500 text-white shadow-sm"
+        onClick={() => dispatch(selectEvent(event))}
         style={{
           top: `${startOffset}%`,
           height: `${blockHeight}px`,
@@ -106,6 +109,7 @@ export const CalendarCell = ({ date, hour, view }: CalendarCellProps) => {
       <div
         key={event.id}
         className="absolute left-0 right-0 mx-1 rounded overflow-hidden bg-blue-100 border-l-4 border-blue-500 text-xs p-1"
+        onClick={() => dispatch(selectEvent(event))}
         style={{
           top: `${index * (HEIGHT + GAP) + 20}px`,
           height: `${HEIGHT}px`,
