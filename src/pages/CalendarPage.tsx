@@ -5,10 +5,10 @@ import { useSelector, useDispatch } from "react-redux"
 import type { RootState } from "../store"
 import { EventModal } from "../components/Modal/EventModal"
 import { clearSelectedEvent } from "../store/eventSlice"
-import { startOfWeek, endOfWeek } from "date-fns"
+import { endOfWeek } from "date-fns"
 import { useMemo } from "react"
 import { repeatEvents } from "../utils/repeatEvents"
-import { addDays, subDays } from "date-fns"
+import { addDays } from "date-fns"
 
 export const CalendarPage = () => {
   const selectedEvent = useSelector((state: RootState) => state.events.selectedEvent)
@@ -17,15 +17,12 @@ export const CalendarPage = () => {
   const currentDate = useSelector((state: RootState) => state.calendar.currentDate)
   const allEvents = useSelector((state: RootState) => state.events.eventList)
 
-  const calendarViewStart = startOfWeek(new Date(currentDate), { weekStartsOn: 0 })
   const calendarViewEnd = endOfWeek(new Date(currentDate), { weekStartsOn: 0 })
-
-  const expandedStart = subDays(calendarViewStart, 60)
   const expandedEnd = addDays(calendarViewEnd, 60)
 
   const visibleEvents = useMemo(() => {
-    return repeatEvents(allEvents, expandedStart, expandedEnd)
-  }, [allEvents, expandedStart, expandedEnd])
+    return repeatEvents(allEvents, expandedEnd)
+  }, [allEvents, expandedEnd])
 
   return (
     <div className="flex flex-col h-screen">
