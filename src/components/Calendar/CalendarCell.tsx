@@ -56,8 +56,10 @@ export const CalendarCell = ({ date, hour, view, events }: CalendarCellProps) =>
 
     const startOffset = (eventStartMinute / 60) * 100
     const totalDurationHours = eventEndHour + eventEndMinute / 60 - (eventStartHour + eventStartMinute / 60)
-    const blockHeight = totalDurationHours * 64
-    const MIN_HEIGHT = 24
+
+    const baseHeight = window.innerWidth < 640 ? 48 : window.innerWidth < 768 ? 56 : 64 // h-12, h-14, h-16
+    const blockHeight = totalDurationHours * baseHeight
+    const MIN_HEIGHT = window.innerWidth < 640 ? 20 : 24
     const appliedHeight = Math.max(blockHeight, MIN_HEIGHT)
 
     const startStr = start.toLocaleTimeString("ko-KR", {
@@ -70,10 +72,11 @@ export const CalendarCell = ({ date, hour, view, events }: CalendarCellProps) =>
       minute: "2-digit",
       hour12: true,
     })
+
     return (
       <div
         key={event.id}
-        className="absolute left-0.5 right-0.5 rounded text-xs overflow-hidden bg-blue-500 text-white shadow-sm"
+        className="absolute left-0.5 right-0.5 rounded text-xs overflow-hidden bg-blue-500 text-white shadow-sm cursor-pointer hover:bg-blue-600 transition-colors"
         onClick={() => dispatch(selectEvent(event))}
         style={{
           top: `${startOffset}%`,
@@ -82,54 +85,61 @@ export const CalendarCell = ({ date, hour, view, events }: CalendarCellProps) =>
         }}
         title={`${event.title} ${startStr} ~ ${endStr}`}
       >
-        <div className="p-1 h-full flex items-center">
-          {appliedHeight < 28 ? (
-            <span className="truncate">
-              {event.title} {startStr}~{endStr}
+        <div className="p-0.5 sm:p-1 h-full flex items-center">
+          {appliedHeight < (window.innerWidth < 640 ? 24 : 28) ? (
+            <span className="truncate text-xs">
+              <span className="hidden sm:inline">
+                {event.title} {startStr}~{endStr}
+              </span>
+              <span className="sm:hidden">{event.title}</span>
             </span>
           ) : (
             <div className="flex flex-col justify-center w-full">
-              <span className="font-medium truncate">{event.title}</span>
-              <span className="text-xs opacity-90 truncate">
+              <span className="font-medium truncate text-xs sm:text-sm">{event.title}</span>
+              <span className="text-xs opacity-90 truncate hidden sm:block">
                 {startStr} ~ {endStr}
               </span>
             </div>
           )}
         </div>
-
       </div>
     )
   }
 
   const renderMonthEvent = (event: CalendarEvent, index: number) => {
-    const GAP = 4
-    const HEIGHT = 20
+    const GAP = window.innerWidth < 640 ? 2 : 4
+    const HEIGHT = window.innerWidth < 640 ? 16 : 20
 
     return (
       <div
         key={event.id}
-        className="absolute left-0 right-0 mx-1 rounded overflow-hidden bg-blue-100 border-l-4 border-blue-500 text-xs p-1"
+        className="absolute left-0 right-0 mx-0.5 sm:mx-1 rounded overflow-hidden bg-blue-100 border-l-2 sm:border-l-4 border-blue-500 text-xs p-0.5 sm:p-1 cursor-pointer hover:bg-blue-200 transition-colors"
         onClick={() => dispatch(selectEvent(event))}
         style={{
-          top: `${index * (HEIGHT + GAP) + 20}px`,
+          top: `${index * (HEIGHT + GAP) + (window.innerWidth < 640 ? 16 : 20)}px`,
           height: `${HEIGHT}px`,
-          marginTop: "10px",
+          marginTop: window.innerWidth < 640 ? "6px" : "10px",
           borderLeftColor: "#4285F4",
           zIndex: 10,
         }}
         title={`${event.title}`}
       >
-        <div className="font-medium truncate">{event.title}</div>
+        <div className="font-medium truncate text-xs">
+          <span className="hidden sm:inline">{event.title}</span>
+          <span className="sm:hidden">
+            {event.title.length > 8 ? event.title.substring(0, 8) + "..." : event.title}
+          </span>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className={cellClass} >
+    <div className={cellClass}>
       {view === "month" && (
         <div className="text-xs text-gray-500">
           <span
-            className={`inline-block w-6 h-6 leading-6 text-center rounded-full ${isToday ? "bg-blue-100 text-blue-700" : isSelected ? "bg-gray-200 text-gray-800" : ""
+            className={`inline-block w-4 h-4 sm:w-6 sm:h-6 leading-4 sm:leading-6 text-center rounded-full text-xs sm:text-sm ${isToday ? "bg-blue-100 text-blue-700" : isSelected ? "bg-gray-200 text-gray-800" : ""
               }`}
           >
             {date.getDate()}
@@ -138,8 +148,7 @@ export const CalendarCell = ({ date, hour, view, events }: CalendarCellProps) =>
       )}
       {view === "week"
         ? cellEvents.map(renderWeekEvent)
-        : cellEvents.map((event: CalendarEvent, index: number) => renderMonthEvent(event, index))
-      }
+        : cellEvents.map((event: CalendarEvent, index: number) => renderMonthEvent(event, index))}
     </div>
   )
 }

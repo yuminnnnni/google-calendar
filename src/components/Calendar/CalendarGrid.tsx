@@ -79,18 +79,23 @@ export const CalendarGrid = ({ events }: CalendarGridProps) => {
     <div className="relative w-full h-full overflow-auto">
       {view === "week" && (
         <>
-          <div className="sticky top-0 z-10 bg-white grid grid-cols-[60px_1fr] w-full">
+          <div className="sticky top-0 z-10 bg-white grid grid-cols-[40px_1fr] sm:grid-cols-[50px_1fr] md:grid-cols-[60px_1fr] w-full">
             <div className="border-b border-r border-gray-200"></div>
             <div className="grid grid-cols-7">{renderDayHeaders()}</div>
           </div>
-          <div className="grid grid-cols-[60px_1fr]">
+
+          <div className="grid grid-cols-[40px_1fr] sm:grid-cols-[50px_1fr] md:grid-cols-[60px_1fr]">
             <div className="border-r border-gray-200">
               {hours.map((hour) => (
-                <div key={hour} className="h-16 border-b border-gray-200 text-right pr-2">
-                  <span className="text-xs text-gray-500">{formatHour(hour)}</span>
+                <div key={hour} className="h-12 sm:h-14 md:h-16 border-b border-gray-200 text-right pr-1 sm:pr-2">
+                  <span className="text-xs sm:text-xs text-gray-500">
+                    <span className="hidden sm:inline">{formatHour(hour)}</span>
+                    <span className="sm:hidden">{hour}</span>
+                  </span>
                 </div>
               ))}
             </div>
+
             <div className="grid grid-cols-7">
               {days.map((day, i) => (
                 <div key={i} className="border-l border-gray-200">
@@ -105,32 +110,28 @@ export const CalendarGrid = ({ events }: CalendarGridProps) => {
                       )
                     })
 
-                    return (
-                      <CalendarCell
-                        key={hour}
-                        date={day}
-                        hour={hour}
-                        view={view}
-                        events={cellEvents}
-                      />
-                    )
+                    return <CalendarCell key={hour} date={day} hour={hour} view={view} events={cellEvents} />
                   })}
                 </div>
               ))}
-
             </div>
           </div>
         </>
       )}
+
       {view === "month" && (
         <>
           <div className="sticky top-0 z-10 bg-white grid grid-cols-7 w-full">
             {days.slice(0, 7).map((day, i) => (
-              <div key={i} className="text-center py-2 border-b border-gray-200">
-                {day.toLocaleDateString("ko-KR", { weekday: "short" })}
+              <div key={i} className="text-center py-1 sm:py-2 border-b border-gray-200">
+                <span className="text-xs sm:text-sm font-medium text-gray-600">
+                  <span className="hidden sm:inline">{day.toLocaleDateString("ko-KR", { weekday: "short" })}</span>
+                  <span className="sm:hidden">{day.toLocaleDateString("ko-KR", { weekday: "narrow" })}</span>
+                </span>
               </div>
             ))}
           </div>
+
           <div className="grid grid-cols-7 grid-rows-6">
             {days.map((day, i) => {
               const cellEvents = events.filter((event) => {
@@ -141,15 +142,7 @@ export const CalendarGrid = ({ events }: CalendarGridProps) => {
                   eventDate.getDate() === day.getDate()
                 )
               })
-              return (
-                <CalendarCell
-                  key={i}
-                  date={day}
-                  hour={null}
-                  view={view}
-                  events={cellEvents}
-                />
-              )
+              return <CalendarCell key={i} date={day} hour={null} view={view} events={cellEvents} />
             })}
           </div>
         </>
