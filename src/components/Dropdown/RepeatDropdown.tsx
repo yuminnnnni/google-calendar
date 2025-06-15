@@ -3,6 +3,8 @@ import { ChevronDown } from "lucide-react"
 import { RepeatType } from "../../types/repeat"
 import { format } from "date-fns"
 import { ko } from "date-fns/locale"
+import { useSelector } from "react-redux"
+import type { RootState } from "../../store"
 
 interface RepeatDropdownProps {
   value: RepeatType
@@ -35,7 +37,8 @@ const getLabel = (type: RepeatType, today: Date): string => {
 
 export const RepeatDropdown = ({ value, onChange }: RepeatDropdownProps) => {
   const [open, setOpen] = useState(false)
-  const today = new Date()
+  const selectedEvent = useSelector((state: RootState) => state.events.selectedEvent)
+  const today = new Date(selectedEvent?.start || new Date())
 
   const repeatOptions: RepeatType[] = [
     RepeatType.NONE,

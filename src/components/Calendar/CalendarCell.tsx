@@ -103,7 +103,7 @@ export const CalendarCell = ({ date, hour, view, events }: CalendarCellProps) =>
         style={{
           top: `${startOffset}%`,
           height: `calc(${totalDurationHours} * (100% / 1))`,
-          zIndex: 10,
+          zIndex: 1,
         }}
         title={`${event.title} ${startStr} ~ ${isSameDay ? endStr : "다음날 " + endStr}`}
       >
@@ -124,7 +124,7 @@ export const CalendarCell = ({ date, hour, view, events }: CalendarCellProps) =>
     return (
       <div
         key={event.id}
-        className="absolute left-0 right-0 mx-0.5 sm:mx-1 rounded overflow-hidden bg-blue-100 border-l-2 sm:border-l-4 border-blue-500 text-xs p-0.5 sm:p-1 cursor-pointer hover:bg-blue-200 transition-colors"
+        className="absolute left-0 right-0 mx-0.5 sm:mx-1 mt-3.5 rounded overflow-hidden bg-blue-100 border-l-2 sm:border-l-4 border-blue-500 text-xs p-0.5 sm:p-1 cursor-pointer hover:bg-blue-200 transition-colors"
         onClick={(e) => {
           e.stopPropagation()
           dispatch(selectEvent(event))

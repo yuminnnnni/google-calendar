@@ -23,13 +23,14 @@ interface EventModalProps {
 export const EventModal = ({ isOpen, onClose, existingEvent }: EventModalProps) => {
   const dispatch = useDispatch()
   const selectedSlot = useSelector((state: RootState) => state.events.selectedSlot)
+  const selectedEvent = useSelector((state: RootState) => state.events.selectedEvent)
 
   const [title, setTitle] = useState("")
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
   const [showDatePicker, setShowDatePicker] = useState(false)
-  const [repeatType, setRepeatType] = useState<RepeatType>(RepeatType.NONE)
+  const [repeatType, setRepeatType] = useState<RepeatType>(selectedEvent?.repeat || RepeatType.NONE)
 
   useEffect(() => {
     if (!isOpen) return
