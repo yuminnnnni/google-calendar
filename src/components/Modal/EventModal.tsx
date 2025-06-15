@@ -9,6 +9,8 @@ import { addEvent, updateEvent, deleteEvent } from "../../store/eventSlice"
 import { getNearestTime, addMinutesToTime } from "../../utils/time"
 import { v4 as uuidv4 } from "uuid"
 import type { CalendarEvent } from "../../types/calendar"
+import { RepeatDropdown } from "../Dropdown/RepeatDropdown"
+import { RepeatType } from "../../types/repeat"
 
 interface EventModalProps {
   isOpen: boolean
@@ -23,8 +25,8 @@ export const EventModal = ({ isOpen, onClose, existingEvent }: EventModalProps) 
   const [selectedDate, setSelectedDate] = useState(new Date())
   const [startTime, setStartTime] = useState("")
   const [endTime, setEndTime] = useState("")
-  const [isRecurring, setIsRecurring] = useState(false)
   const [showDatePicker, setShowDatePicker] = useState(false)
+  const [repeatType, setRepeatType] = useState<RepeatType>(RepeatType.NONE)
 
   useEffect(() => {
     if (existingEvent) {
@@ -63,6 +65,7 @@ export const EventModal = ({ isOpen, onClose, existingEvent }: EventModalProps) 
         start: start.toISOString(),
         end: end.toISOString(),
         color: "#4285F4",
+        repeat: repeatType,
       }))
     }
 
@@ -139,17 +142,9 @@ export const EventModal = ({ isOpen, onClose, existingEvent }: EventModalProps) 
                 </div>
               </div>
 
-              <div className="flex items-center space-x-3 mb-8">
-                <input
-                  type="checkbox"
-                  id="recurring"
-                  checked={isRecurring}
-                  onChange={(e) => setIsRecurring(e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300"
-                />
-                <label htmlFor="recurring" className="text-base text-gray-700">
-                  반복 업무
-                </label>
+              <div className="mb-4">
+                <span className="block text-sm text-gray-600 mb-1">반복 설정</span>
+                <RepeatDropdown value={repeatType} onChange={setRepeatType} />
               </div>
             </div>
 

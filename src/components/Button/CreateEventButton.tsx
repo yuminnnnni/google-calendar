@@ -8,9 +8,7 @@ interface CreateEventButtonProps {
 
 export const CreateEventButton = ({ className = "" }: CreateEventButtonProps) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
-
   const handleCloseModal = () => setIsModalOpen(false)
-
 
   return (
     <>
