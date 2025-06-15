@@ -37,8 +37,10 @@ const getLabel = (type: RepeatType, today: Date): string => {
 
 export const RepeatDropdown = ({ value, onChange }: RepeatDropdownProps) => {
   const [open, setOpen] = useState(false)
+  const selectedSlot = useSelector((state: RootState) => state.events.selectedSlot)
   const selectedEvent = useSelector((state: RootState) => state.events.selectedEvent)
-  const today = new Date(selectedEvent?.start || new Date())
+
+  const today = new Date(selectedEvent?.start || selectedSlot?.date || new Date())
 
   const repeatOptions: RepeatType[] = [
     RepeatType.NONE,
