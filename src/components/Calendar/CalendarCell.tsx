@@ -45,8 +45,8 @@ export const CalendarCell = ({ date, hour, view, events }: CalendarCellProps) =>
       ? "h-12 sm:h-14 md:h-16 border-b border-gray-200 hover:bg-blue-50 cursor-pointer relative overflow-visible"
       : "h-20 sm:h-24 md:h-32 border border-gray-200 p-0.5 sm:p-1 relative overflow-hidden"
 
-  const handleCellClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget && view === "week" && hour !== null) {
+  const handleCellClick = () => {
+    if (view === "week" && hour !== null) {
       const slotDate = new Date(date)
       slotDate.setHours(hour, 0, 0, 0)
       dispatch(selectSlot({ date: slotDate.toISOString() }))

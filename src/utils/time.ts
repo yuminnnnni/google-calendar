@@ -1,6 +1,6 @@
 // 현재 시각을 기준으로 가장 가까운 15분 단위의 시간 문자열을 반환하는 함수
-export const getNearestTime = (): string => {
-  const now = new Date()
+export const getNearestTime = (base?: Date): string => {
+  const now = base ? new Date(base) : new Date()
   let hour = now.getHours()
   let minute = Math.round(now.getMinutes() / 15) * 15
 

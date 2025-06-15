@@ -159,11 +159,11 @@ export const EventModal = ({ isOpen, onClose, existingEvent }: EventModalProps) 
                   </div>
                   <div className="flex items-center space-x-3 mb-2">
                     <div className="flex-1">
-                      <TimePicker value={startTime} onChange={setStartTime} placeholder="시작 시간" />
+                      <TimePicker value={startTime} onChange={setStartTime} placeholder="시작 시간" baseTime={selectedDate} />
                     </div>
                     <span className="text-gray-500 text-lg">-</span>
                     <div className="flex-1">
-                      <TimePicker value={endTime} onChange={setEndTime} placeholder="종료 시간" />
+                      <TimePicker value={endTime} onChange={setEndTime} placeholder="종료 시간" baseTime={selectedDate} />
                     </div>
                   </div>
                   <div className="text-sm text-gray-500 mt-2">시간대 · 반복 안함</div>

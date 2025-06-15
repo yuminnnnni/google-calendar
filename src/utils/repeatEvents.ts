@@ -2,7 +2,7 @@ import { RepeatType } from "../types/repeat"
 import type { CalendarEvent } from "../types/calendar"
 
 // 반복 일정을 현재 달력에 보여줄 날짜들에 맞춰 여러 개로 복사해서 반환하는 함수
-export const repeatEvents = (events: CalendarEvent[], viewStart: Date, viewEnd: Date): CalendarEvent[] => {
+export const repeatEvents = (events: CalendarEvent[], viewEnd: Date): CalendarEvent[] => {
   const result: CalendarEvent[] = []
 
   for (const event of events) {
