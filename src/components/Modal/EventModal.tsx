@@ -11,6 +11,8 @@ import { v4 as uuidv4 } from "uuid"
 import type { CalendarEvent } from "../../types/calendar"
 import { RepeatDropdown } from "../Dropdown/RepeatDropdown"
 import { RepeatType } from "../../types/repeat"
+import { useSelector } from "react-redux"
+import type { RootState } from "../../store"
 
 interface EventModalProps {
   isOpen: boolean
@@ -20,6 +22,7 @@ interface EventModalProps {
 
 export const EventModal = ({ isOpen, onClose, existingEvent }: EventModalProps) => {
   const dispatch = useDispatch()
+  const selectedSlot = useSelector((state: RootState) => state.events.selectedSlot)
 
   const [title, setTitle] = useState("")
   const [selectedDate, setSelectedDate] = useState(new Date())
@@ -39,13 +42,27 @@ export const EventModal = ({ isOpen, onClose, existingEvent }: EventModalProps) 
       setSelectedDate(start)
       setStartTime(`${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`)
       setEndTime(`${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`)
+    } else if (selectedSlot) {
+      const slotDate = new Date(selectedSlot.date)
+      setTitle("")
+      setSelectedDate(slotDate)
+
+      const slotHour = slotDate.getHours()
+      const start = `${String(slotHour).padStart(2, "0")}:00`
+      const end = addMinutesToTime(start, 60)
+
+      setStartTime(start)
+      setEndTime(end)
+      setRepeatType(RepeatType.NONE)
     } else {
       const nearest = getNearestTime()
       setTitle("")
+      setSelectedDate(new Date())
       setStartTime(nearest)
       setEndTime(addMinutesToTime(nearest, 60))
+      setRepeatType(RepeatType.NONE)
     }
-  }, [isOpen, existingEvent])
+  }, [isOpen, existingEvent, selectedSlot])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()

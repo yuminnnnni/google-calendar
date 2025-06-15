@@ -1,7 +1,7 @@
 import { useSelector, useDispatch } from "react-redux"
 import type { RootState } from "../../store"
 import type { CalendarEvent, CalendarView } from "../../types/calendar"
-import { selectEvent } from "../../store/eventSlice"
+import { selectEvent, selectSlot } from "../../store/eventSlice"
 
 interface CalendarCellProps {
   date: Date
@@ -42,8 +42,16 @@ export const CalendarCell = ({ date, hour, view, events }: CalendarCellProps) =>
 
   const cellClass =
     view === "week"
-      ? "h-16 border-b border-gray-200 hover:bg-blue-50 cursor-pointer relative overflow-visible"
-      : "h-32 border border-gray-200 p-1 relative overflow-hidden"
+      ? "h-12 sm:h-14 md:h-16 border-b border-gray-200 hover:bg-blue-50 cursor-pointer relative overflow-visible"
+      : "h-20 sm:h-24 md:h-32 border border-gray-200 p-0.5 sm:p-1 relative overflow-hidden"
+
+  const handleCellClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget && view === "week" && hour !== null) {
+      const slotDate = new Date(date)
+      slotDate.setHours(hour, 0, 0, 0)
+      dispatch(selectSlot({ date: slotDate.toISOString() }))
+    }
+  }
 
   const renderWeekEvent = (event: CalendarEvent) => {
     const start = new Date(event.start)
@@ -55,12 +63,21 @@ export const CalendarCell = ({ date, hour, view, events }: CalendarCellProps) =>
     const eventEndMinute = end.getMinutes()
 
     const startOffset = (eventStartMinute / 60) * 100
-    const totalDurationHours = eventEndHour + eventEndMinute / 60 - (eventStartHour + eventStartMinute / 60)
 
-    const baseHeight = window.innerWidth < 640 ? 48 : window.innerWidth < 768 ? 56 : 64 // h-12, h-14, h-16
-    const blockHeight = totalDurationHours * baseHeight
-    const MIN_HEIGHT = window.innerWidth < 640 ? 20 : 24
-    const appliedHeight = Math.max(blockHeight, MIN_HEIGHT)
+    let totalDurationHours: number
+
+    const isSameDay =
+      start.getFullYear() === end.getFullYear() &&
+      start.getMonth() === end.getMonth() &&
+      start.getDate() === end.getDate()
+
+    if (isSameDay) {
+      totalDurationHours = eventEndHour + eventEndMinute / 60 - (eventStartHour + eventStartMinute / 60)
+    } else {
+      totalDurationHours = 24 - (eventStartHour + eventStartMinute / 60)
+    }
+
+    totalDurationHours = Math.max(0.5, Math.min(totalDurationHours, 24 - eventStartHour))
 
     const startStr = start.toLocaleTimeString("ko-KR", {
       hour: "numeric",
@@ -73,69 +90,65 @@ export const CalendarCell = ({ date, hour, view, events }: CalendarCellProps) =>
       hour12: true,
     })
 
+    const displayEndTime = isSameDay ? endStr : "다음날"
+
     return (
       <div
         key={event.id}
         className="absolute left-0.5 right-0.5 rounded text-xs overflow-hidden bg-blue-500 text-white shadow-sm cursor-pointer hover:bg-blue-600 transition-colors"
-        onClick={() => dispatch(selectEvent(event))}
+        onClick={(e) => {
+          e.stopPropagation()
+          dispatch(selectEvent(event))
+        }}
         style={{
           top: `${startOffset}%`,
-          height: `${blockHeight}px`,
+          height: `calc(${totalDurationHours} * (100% / 1))`,
           zIndex: 10,
         }}
-        title={`${event.title} ${startStr} ~ ${endStr}`}
+        title={`${event.title} ${startStr} ~ ${isSameDay ? endStr : "다음날 " + endStr}`}
       >
         <div className="p-0.5 sm:p-1 h-full flex items-center">
-          {appliedHeight < (window.innerWidth < 640 ? 24 : 28) ? (
-            <span className="truncate text-xs">
-              <span className="hidden sm:inline">
-                {event.title} {startStr}~{endStr}
-              </span>
-              <span className="sm:hidden">{event.title}</span>
+          <div className="flex flex-col justify-center w-full min-h-0">
+            <span className="font-medium truncate text-xs sm:text-sm">{event.title}</span>
+            <span className="text-xs opacity-90 truncate hidden sm:block">
+              {startStr} ~ {displayEndTime}
             </span>
-          ) : (
-            <div className="flex flex-col justify-center w-full">
-              <span className="font-medium truncate text-xs sm:text-sm">{event.title}</span>
-              <span className="text-xs opacity-90 truncate hidden sm:block">
-                {startStr} ~ {endStr}
-              </span>
-            </div>
-          )}
+            {!isSameDay && <span className="text-xs opacity-75 truncate">(다음날 계속)</span>}
+          </div>
         </div>
       </div>
     )
   }
 
   const renderMonthEvent = (event: CalendarEvent, index: number) => {
-    const GAP = window.innerWidth < 640 ? 2 : 4
-    const HEIGHT = window.innerWidth < 640 ? 16 : 20
-
     return (
       <div
         key={event.id}
         className="absolute left-0 right-0 mx-0.5 sm:mx-1 rounded overflow-hidden bg-blue-100 border-l-2 sm:border-l-4 border-blue-500 text-xs p-0.5 sm:p-1 cursor-pointer hover:bg-blue-200 transition-colors"
-        onClick={() => dispatch(selectEvent(event))}
+        onClick={(e) => {
+          e.stopPropagation()
+          dispatch(selectEvent(event))
+        }}
         style={{
-          top: `${index * (HEIGHT + GAP) + (window.innerWidth < 640 ? 16 : 20)}px`,
-          height: `${HEIGHT}px`,
-          marginTop: window.innerWidth < 640 ? "6px" : "10px",
+          top: `${index * 18 + 16}px`,
+          height: "16px",
           borderLeftColor: "#4285F4",
           zIndex: 10,
         }}
         title={`${event.title}`}
       >
         <div className="font-medium truncate text-xs">
-          <span className="hidden sm:inline">{event.title}</span>
           <span className="sm:hidden">
             {event.title.length > 8 ? event.title.substring(0, 8) + "..." : event.title}
           </span>
+          <span className="hidden sm:inline">{event.title}</span>
         </div>
       </div>
     )
   }
 
   return (
-    <div className={cellClass}>
+    <div className={cellClass} onClick={handleCellClick}>
       {view === "month" && (
         <div className="text-xs text-gray-500">
           <span
