@@ -29,19 +29,23 @@ export const EventModal = ({ isOpen, onClose, existingEvent }: EventModalProps) 
   const [repeatType, setRepeatType] = useState<RepeatType>(RepeatType.NONE)
 
   useEffect(() => {
+    if (!isOpen) return
+
     if (existingEvent) {
-      setTitle(existingEvent.title)
       const start = new Date(existingEvent.start)
       const end = new Date(existingEvent.end)
+
+      setTitle(existingEvent.title)
       setSelectedDate(start)
       setStartTime(`${String(start.getHours()).padStart(2, "0")}:${String(start.getMinutes()).padStart(2, "0")}`)
       setEndTime(`${String(end.getHours()).padStart(2, "0")}:${String(end.getMinutes()).padStart(2, "0")}`)
     } else {
       const nearest = getNearestTime()
+      setTitle("")
       setStartTime(nearest)
       setEndTime(addMinutesToTime(nearest, 60))
     }
-  }, [existingEvent])
+  }, [isOpen, existingEvent])
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
